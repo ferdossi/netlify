@@ -8,13 +8,7 @@
   <link
     rel="icon"
     type="image/svg+xml"
-    href='data:image/svg+xml;utf8,
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="21.33" y="0" fill="%23239f40"/>
-      <rect width="64" height="21.33" y="21.33" fill="%23ffffff"/>
-      <rect width="64" height="21.34" y="42.66" fill="%23da0000"/>
-      <circle cx="32" cy="32" r="5" fill="%23da0000"/>
-    </svg>'
+    href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="21.33" y="0" fill="%23239f40"/><rect width="64" height="21.33" y="21.33" fill="%23ffffff"/><rect width="64" height="21.34" y="42.66" fill="%23da0000"/><circle cx="32" cy="32" r="5" fill="%23da0000"/></svg>'
   />
 
   <style>
@@ -33,14 +27,17 @@
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     }
 
+    h1 {
+      margin-top: 0;
+    }
+
     label {
       display: block;
       margin-top: 14px;
       font-weight: bold;
     }
 
-    input[type="text"],
-    input[type="date"] {
+    input[type="text"] {
       width: 100%;
       padding: 12px;
       margin-top: 6px;
@@ -89,7 +86,6 @@
     }
 
     .clear-btn {
-      background: #fff;
       color: #b00020;
       border-color: #e0b4bc;
     }
@@ -104,6 +100,46 @@
       color: #777;
     }
 
+    .date-wrapper {
+      position: relative;
+      margin-top: 6px;
+    }
+
+    .date-display {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      box-sizing: border-box;
+      border: 1px solid #777;
+      background: white;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .date-display:hover {
+      background: #fafafa;
+    }
+
+    .hidden-date-input {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .date-fr {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #444;
+      font-style: italic;
+    }
+
     .checkbox-line {
       display: flex;
       align-items: center;
@@ -114,9 +150,10 @@
 
     .checkbox-line input {
       width: auto;
+      margin: 0;
     }
 
-    button.main-button {
+    .main-button {
       margin-top: 18px;
       padding: 12px 18px;
       font-size: 16px;
@@ -127,25 +164,24 @@
       border-radius: 8px;
     }
 
-    button.main-button:hover {
+    .main-button:hover {
       background: #333;
     }
 
     .link-preview {
       margin-top: 16px;
-      word-break: break-all;
       font-size: 14px;
       color: #555;
+      line-height: 1.5;
     }
 
-    .date-fr {
+    .link-preview .url {
       margin-top: 8px;
-      font-size: 14px;
-      color: #444;
-      font-style: italic;
+      word-break: break-all;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Recherche X dynamique</h1>
@@ -156,7 +192,7 @@
     <label>Nombre minimum de réponses</label>
     <div class="selector-box">
       <div class="selector-title">Choisir une valeur</div>
-      <div class="option-buttons" id="repliesOptions">
+      <div class="option-buttons">
         <button type="button" class="option-btn" data-type="replies" data-value="5">5</button>
         <button type="button" class="option-btn" data-type="replies" data-value="15">15</button>
         <button type="button" class="option-btn active" data-type="replies" data-value="30">30</button>
@@ -170,24 +206,37 @@
     <label>Nombre minimum de re-tweets</label>
     <div class="selector-box">
       <div class="selector-title">Choisir une valeur</div>
-      <div class="option-buttons" id="retweetsOptions">
+      <div class="option-buttons">
         <button type="button" class="option-btn" data-type="retweets" data-value="5">5</button>
         <button type="button" class="option-btn" data-type="retweets" data-value="15">15</button>
         <button type="button" class="option-btn" data-type="retweets" data-value="30">30</button>
         <button type="button" class="option-btn" data-type="retweets" data-value="50">50</button>
         <button type="button" class="option-btn" data-type="retweets" data-value="100">100</button>
         <button type="button" class="option-btn" data-type="retweets" data-value="500">500</button>
-        <button type="button" class="option-btn clear-btn" data-type="retweets" data-value="">Aucun</button>
+        <button type="button" class="option-btn clear-btn active" data-type="retweets" data-value="">Aucun</button>
       </div>
     </div>
 
     <div class="hint">
-      Tu peux choisir soit les réponses, soit les re-tweets. Sélectionner l’un réinitialise l’autre.
+      Tu peux choisir soit les réponses, soit les re-tweets. Quand tu sélectionnes l’un, l’autre s’efface.
     </div>
 
-	<label for="startDate">Date de début</label>
-	<input id="startDate" type="text" placeholder="jj/mm/aaaa" />
-	<div class="date-fr" id="dateFrPreview"></div>
+    <label for="startDate">Date de début</label>
+
+    <div class="date-wrapper">
+      <button type="button" id="dateDisplay" class="date-display">
+        <span id="dateDisplayText"></span>
+        <span>📅</span>
+      </button>
+
+      <input
+        id="startDate"
+        class="hidden-date-input"
+        type="date"
+      />
+    </div>
+
+    <div class="date-fr" id="dateFrPreview"></div>
 
     <label for="liveOnly" class="checkbox-line">
       <input id="liveOnly" type="checkbox" checked />
@@ -199,71 +248,143 @@
     <div class="link-preview" id="linkPreview"></div>
   </div>
 
-<script>
-  function getTodayDateIso() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
+  <script>
+    const keywordInput = document.getElementById("keyword");
+    const startDateInput = document.getElementById("startDate");
+    const dateDisplay = document.getElementById("dateDisplay");
+    const dateDisplayText = document.getElementById("dateDisplayText");
+    const liveOnlyInput = document.getElementById("liveOnly");
+    const linkPreview = document.getElementById("linkPreview");
+    const dateFrPreview = document.getElementById("dateFrPreview");
+    const openSearchButton = document.getElementById("openSearch");
 
-  function getTodayDateFr() {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, "0");
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const year = today.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
+    let selectedReplies = "30";
+    let selectedRetweets = "";
 
-  function convertFrToIso(dateFr) {
-    const match = dateFr.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (!match) return null;
+    function getTodayDateIso() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
 
-    const [, day, month, year] = match;
-    return `${year}-${month}-${day}`;
-  }
-
-  function updateDateFrPreview() {
-    const value = startDateInput.value.trim();
-    dateFrPreview.textContent = value ? `Date choisie : ${value}` : "";
-  }
-
-  function generateXSearchUrl() {
-    const keyword = keywordInput.value.trim();
-    const isLive = liveOnlyInput.checked;
-
-    const frDateValue = startDateInput.value.trim();
-    const startDateIso = convertFrToIso(frDateValue) || getTodayDateIso();
-
-    const queryParts = [];
-
-    if (keyword) {
-      queryParts.push(keyword);
+      return `${year}-${month}-${day}`;
     }
 
-    if (selectedReplies !== "") {
-      queryParts.push(`min_replies:${selectedReplies}`);
-    } else if (selectedRetweets !== "") {
-      queryParts.push(`min_retweets:${selectedRetweets}`);
+    function formatIsoToFr(dateIso) {
+      if (!dateIso) return "";
+
+      const [year, month, day] = dateIso.split("-");
+      return `${day}/${month}/${year}`;
     }
 
-    queryParts.push(`since:${startDateIso}`);
-
-    let url = `https://x.com/search?q=${encodeURIComponent(queryParts.join(" "))}&src=typed_query`;
-
-    if (isLive) {
-      url += "&f=live";
+    function openNativeDatePicker() {
+      if (typeof startDateInput.showPicker === "function") {
+        startDateInput.showPicker();
+      } else {
+        startDateInput.focus();
+        startDateInput.click();
+      }
     }
 
-    return url;
-  }
+    function updateDateDisplay() {
+      const isoDate = startDateInput.value || getTodayDateIso();
+      const frDate = formatIsoToFr(isoDate);
 
-  startDateInput.addEventListener("input", updatePreview);
+      dateDisplayText.textContent = frDate;
+      dateFrPreview.textContent = `Date choisie : ${frDate}`;
+    }
 
-  startDateInput.value = getTodayDateFr();
-</script>
+    function updateActiveButtons() {
+      document.querySelectorAll('[data-type="replies"]').forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.value === selectedReplies);
+      });
 
+      document.querySelectorAll('[data-type="retweets"]').forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.value === selectedRetweets);
+      });
+    }
 
+    function generateXSearchUrl() {
+      const keyword = keywordInput.value.trim();
+      const startDateIso = startDateInput.value || getTodayDateIso();
+      const isLive = liveOnlyInput.checked;
+
+      const queryParts = [];
+
+      if (keyword) {
+        queryParts.push(keyword);
+      }
+
+      if (selectedReplies !== "") {
+        queryParts.push(`min_replies:${selectedReplies}`);
+      } else if (selectedRetweets !== "") {
+        queryParts.push(`min_retweets:${selectedRetweets}`);
+      }
+
+      queryParts.push(`since:${startDateIso}`);
+
+      let url = `https://x.com/search?q=${encodeURIComponent(queryParts.join(" "))}&src=typed_query`;
+
+      if (isLive) {
+        url += "&f=live";
+      }
+
+      return url;
+    }
+
+    function updatePreview() {
+      const url = generateXSearchUrl();
+      const frDate = formatIsoToFr(startDateInput.value || getTodayDateIso());
+
+      let filterLabel = "Aucun filtre";
+
+      if (selectedReplies !== "") {
+        filterLabel = `Réponses minimum : ${selectedReplies}`;
+      } else if (selectedRetweets !== "") {
+        filterLabel = `Re-tweets minimum : ${selectedRetweets}`;
+      }
+
+      linkPreview.innerHTML = `
+        <div><strong>Date :</strong> ${frDate}</div>
+        <div><strong>Filtre :</strong> ${filterLabel}</div>
+        <div><strong>Mode :</strong> ${liveOnlyInput.checked ? "Live" : "Standard"}</div>
+        <div class="url"><strong>Lien :</strong> ${url}</div>
+      `;
+
+      updateDateDisplay();
+      updateActiveButtons();
+    }
+
+    document.querySelectorAll(".option-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        const type = this.dataset.type;
+        const value = this.dataset.value;
+
+        if (type === "replies") {
+          selectedReplies = value;
+          selectedRetweets = "";
+        }
+
+        if (type === "retweets") {
+          selectedRetweets = value;
+          selectedReplies = "";
+        }
+
+        updatePreview();
+      });
+    });
+
+    dateDisplay.addEventListener("click", openNativeDatePicker);
+    startDateInput.addEventListener("change", updatePreview);
+    keywordInput.addEventListener("input", updatePreview);
+    liveOnlyInput.addEventListener("change", updatePreview);
+
+    openSearchButton.addEventListener("click", function () {
+      window.open(generateXSearchUrl(), "_blank");
+    });
+
+    startDateInput.value = getTodayDateIso();
+    updatePreview();
+  </script>
 </body>
 </html>
