@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recherche X dynamique</title>
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="21.33" y="0" fill="%23239f40"/>
+      <rect width="64" height="21.33" y="21.33" fill="%23ffffff"/>
+      <rect width="64" height="21.34" y="42.66" fill="%23da0000"/>
+      <circle cx="32" cy="32" r="5" fill="%23da0000"/>
+    </svg>'
+  />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .selector-box {
+      margin-top: 8px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 14px;
+      background: #fafafa;
+    }
+
+    .selector-title {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .option-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .option-btn {
+      padding: 10px 14px;
+      border: 1px solid #ccc;
+      border-radius: 999px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
+
+    .option-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .option-btn.active {
+      background: #000;
+      color: white;
+      border-color: #000;
+    }
+
+    .clear-btn {
+      background: #fff;
+      color: #b00020;
+      border-color: #e0b4bc;
+    }
+
+    .clear-btn:hover {
+      background: #fff3f5;
+    }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #777;
+    }
+
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      font-weight: bold;
+    }
+
+    .checkbox-line input {
+      width: auto;
+    }
+
+    button.main-button {
+      margin-top: 18px;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #000;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+
+    button.main-button:hover {
+      background: #333;
+    }
+
+    .link-preview {
+      margin-top: 16px;
+      word-break: break-all;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .date-fr {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #444;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Recherche X dynamique</h1>
+
+    <label for="keyword">Mot-clé</label>
+    <input id="keyword" type="text" value="iran" />
+
+    <label>Nombre minimum de réponses</label>
+    <div class="selector-box">
+      <div class="selector-title">Choisir une valeur</div>
+      <div class="option-buttons" id="repliesOptions">
+        <button type="button" class="option-btn" data-type="replies" data-value="5">5</button>
+        <button type="button" class="option-btn" data-type="replies" data-value="15">15</button>
+        <button type="button" class="option-btn active" data-type="replies" data-value="30">30</button>
+        <button type="button" class="option-btn" data-type="replies" data-value="50">50</button>
+        <button type="button" class="option-btn" data-type="replies" data-value="100">100</button>
+        <button type="button" class="option-btn" data-type="replies" data-value="500">500</button>
+        <button type="button" class="option-btn clear-btn" data-type="replies" data-value="">Aucun</button>
+      </div>
+    </div>
+
+    <label>Nombre minimum de re-tweets</label>
+    <div class="selector-box">
+      <div class="selector-title">Choisir une valeur</div>
+      <div class="option-buttons" id="retweetsOptions">
+        <button type="button" class="option-btn" data-type="retweets" data-value="5">5</button>
+        <button type="button" class="option-btn" data-type="retweets" data-value="15">15</button>
+        <button type="button" class="option-btn" data-type="retweets" data-value="30">30</button>
+        <button type="button" class="option-btn" data-type="retweets" data-value="50">50</button>
+        <button type="button" class="option-btn" data-type="retweets" data-value="100">100</button>
+        <button type="button" class="option-btn" data-type="retweets" data-value="500">500</button>
+        <button type="button" class="option-btn clear-btn" data-type="retweets" data-value="">Aucun</button>
+      </div>
+    </div>
+
+    <div class="hint">
+      Tu peux choisir soit les réponses, soit les re-tweets. Sélectionner l’un réinitialise l’autre.
+    </div>
+
+	<label for="startDate">Date de début</label>
+	<input id="startDate" type="text" placeholder="jj/mm/aaaa" />
+	<div class="date-fr" id="dateFrPreview"></div>
+
+    <label for="liveOnly" class="checkbox-line">
+      <input id="liveOnly" type="checkbox" checked />
+      Recherche en direct (live)
+    </label>
+
+    <button id="openSearch" class="main-button">Ouvrir la recherche sur X</button>
+
+    <div class="link-preview" id="linkPreview"></div>
+  </div>
+
+<script>
+  function getTodayDateIso() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function getTodayDateFr() {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, "0");
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  function convertFrToIso(dateFr) {
+    const match = dateFr.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) return null;
+
+    const [, day, month, year] = match;
+    return `${year}-${month}-${day}`;
+  }
+
+  function updateDateFrPreview() {
+    const value = startDateInput.value.trim();
+    dateFrPreview.textContent = value ? `Date choisie : ${value}` : "";
+  }
+
+  function generateXSearchUrl() {
+    const keyword = keywordInput.value.trim();
+    const isLive = liveOnlyInput.checked;
+
+    const frDateValue = startDateInput.value.trim();
+    const startDateIso = convertFrToIso(frDateValue) || getTodayDateIso();
+
+    const queryParts = [];
+
+    if (keyword) {
+      queryParts.push(keyword);
+    }
+
+    if (selectedReplies !== "") {
+      queryParts.push(`min_replies:${selectedReplies}`);
+    } else if (selectedRetweets !== "") {
+      queryParts.push(`min_retweets:${selectedRetweets}`);
+    }
+
+    queryParts.push(`since:${startDateIso}`);
+
+    let url = `https://x.com/search?q=${encodeURIComponent(queryParts.join(" "))}&src=typed_query`;
+
+    if (isLive) {
+      url += "&f=live";
+    }
+
+    return url;
+  }
+
+  startDateInput.addEventListener("input", updatePreview);
+
+  startDateInput.value = getTodayDateFr();
+</script>
+
+
+</body>
+</html>
